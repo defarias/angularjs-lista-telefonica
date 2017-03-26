@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html ng-app="listaTelefonica">
+<head>
+	<meta charset="utf-8">
+	<title>Lista Telefonica</title>
+	<link rel="stylesheet" href="lib/bootstrap/css/bootstrap.css">
+	<link rel="stylesheet" href="css/app.css">
+	<link rel="stylesheet" href="css/ui.css">
+	<script src="lib/angular/angular.js"></script>
+	<script src="lib/angular/angular-locale_pt-br.js"></script>
+	<script src="lib/angular/angular-messages.js"></script>
+	<script src="js/app.js"></script>
+	<script src="js/controllers/listaTelefonicaCtrl.js"></script>
+	<script src="js/services/contatosAPIService.js"></script>
+	<script src="js/services/operadorasAPIService.js"></script>
+	<script src="js/services/serialGeneratorService.js"></script>
+	<script src="js/config/serialGeneratorConfig.js"></script>
+	<script src="js/value/configValue.js"></script>
+	<script src="js/filters/nameFilter.js"></script>
+	<script src="js/filters/ellipsisFilter.js"></script>
+	<script src="js/directives/uiAlertDirective.js"></script>
+	<script src="js/directives/uiDateDirective.js"></script>
+	<script src="js/directives/uiAccordionDirective.js"></script>
+
+	
+</head>
+<body ng-controller="listaTelefonicaCtrl">
+	<div class="jumbotron">
+		<ui-accordions>
+			<ui-accordion title="Accordion 1">
+				Aqui é Body Builder Ipsum PORRA! Não vai dá não. Eu quero esse 13 daqui a pouquinho aí. Que não vai dá rapaiz, não vai dá essa porra. Sai filho da puta! Bora caralho, você quer ver essa porra velho. Sabe o que é isso daí? Trapézio descendente é o nome disso aí.
+			</ui-accordion>
+			<ui-accordion title="Accordion 2">
+				Aqui é Body Builder Ipsum PORRA! Não vai dá não. Eu quero esse 13 daqui a pouquinho aí. Que não vai dá rapaiz, não vai dá essa porra. Sai filho da puta! Bora caralho, você quer ver essa porra velho. Sabe o que é isso daí? Trapézio descendente é o nome disso aí.
+			</ui-accordion>
+			<ui-accordion title="Accordion 3">
+				Aqui é Body Builder Ipsum PORRA! Não vai dá não. Eu quero esse 13 daqui a pouquinho aí. Que não vai dá rapaiz, não vai dá essa porra. Sai filho da puta! Bora caralho, você quer ver essa porra velho. Sabe o que é isso daí? Trapézio descendente é o nome disso aí.
+			</ui-accordion>
+			<ui-accordion title="Accordion 4">
+				Aqui é Body Builder Ipsum PORRA! Não vai dá não. Eu quero esse 13 daqui a pouquinho aí. Que não vai dá rapaiz, não vai dá essa porra. Sai filho da puta! Bora caralho, você quer ver essa porra velho. Sabe o que é isso daí? Trapézio descendente é o nome disso aí.
+			</ui-accordion>
+		</ui-accordions>
+
+		<h3 ng-bind="app"></h3>
+	
+		<ui-alert title="Um erro ocorreu, jovem Padawan!" ng-if="message">
+			Tentar novamente, você deve.
+		</ui-alert>
+
+		<input class="form-control" type="text" ng-model="criterioDeBusca" placeholder="O que deseja buscar?" />
+		<table ng-show="contatos.length>0" class="table table-striped">
+			<tr>
+				<th></th>
+				<th>Serial</th>
+				<th><a href="" ng-click="ordenarPor('nome')">Nome</a></th>
+				<th><a href="" ng-click="ordenarPor('telefone')">Telefone</a></th>
+				<th>Operadora</th>
+				<th>Data</th>
+			</tr>
+			<tr ng-class="{'selecionado negrito': contato.selecionado}" ng-repeat="contato in contatos | limitTo:30 | filter:criterioDeBusca | orderBy:criterioDeOrdenacao:direcaoDaOrdenacao">
+				<td><input type="checkbox" ng-model="contato.selecionado" /></td>
+				<td>{{contato.serial}}</td>
+				<td>{{contato.nome | name | ellipsis:15}}</td>
+				<td>{{contato.telefone}}</td>
+				<td>{{contato.operadora.nome | lowercase}}</td>
+				<td>{{contato.data | date: 'dd/MM/yyyy hh:mm'}}</td>
+			</tr>
+		</table>
+		<hr/>
+		<form name="contatoForm">
+			<input class="form-control" type="text" ng-model="contato.nome" name="nome" placeholder="Nome" ng-required="true" ng-minlength="10"/>
+			
+			<input class="form-control" type="text" ng-model="contato.telefone" name="telefone" placeholder="Telefone" ng-required="true" ng-pattern="/^\d{4,5}-\d{4}$/"/>
+			{{contato.data}}
+			<input class="form-control" type="text" ng-model = "contato.data" name="data" placeholder="Data" ui-date />
+
+			<select class="form-control" ng-model="contato.operadora" ng-options="operadora.nome + '('+(operadora.preco | currency)+')' for operadora in operadoras | orderBy:'nome'">
+				<option value="">Selecione uma operadora</option>		
+			</select>
+		</form>
+		
+		<div ng-show="contatoForm.nome.$dirty" ng-messages="contatoForm.nome.$error" class="alert alert-danger">
+			<div ng-message="required">
+				Preencha nome.
+			</div>
+
+			<div ng-message="minlength">
+				O campo nome deve ter no mínimo 10 caracteres.
+			</div>
+		</div>
+
+		<div ng-show="contatoForm.telefone.$error.required && contatoForm.telefone.$dirty" class="alert alert-danger">
+			Preencha telefone.
+		</div>
+
+		<div ng-show="contatoForm.telefone.$error.pattern" class="alert alert-danger">
+			Telefone deve ter o formato DDDDD-DDDD.
+		</div>
+
+		<button class="btn btn-primary btn-block" ng-click="adicionarContato(contato)" ng-disabled="contatoForm.$invalid">Adicionar Contato</button>
+		
+		<button class="btn btn-danger btn-block" ng-click="apagarContatos(contatos)" ng-if="isContatoSelecionado(contatos)">Apagar Contatos</button>
+		
+	</div>
+	<div ng-include="'view/footer.html'"></div>
+</body>
+</html>
